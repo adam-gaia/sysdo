@@ -10,7 +10,7 @@ use directories::BaseDirs;
 use std::process::Command;
 use jiff::{Zoned, Unit};
 use std::env;
-
+use nixgen::label;
 use clap::{Parser, Args, Subcommand, ValueEnum};
 
 mod settings;
@@ -48,36 +48,54 @@ struct Cli {
 	command: Commands,
 }
 
-fn main() -> Result<()> {
-    env_logger::init();
-    let args = Cli::parse();
-
-    let username = match args.username {
+fn username(arg: Option<String>) -> Result<String> {
+	let username = match arg {
     	Some(username) => username,
     	None => run("id", Some(&["--user", "--name"]))?
     };
+    Ok(username)
+}
 
-    let hostname = match args.hostname {
+fn hostname(arg: Option<String>) -> Result<String> {
+	let hostname = match arg {
     	Some(hostname) => hostname,
     	None => run("hostname", None)?
     };
- 
-    debug!("{}@{}", username, hostname);    
-	let settings = Settings::new(&username, &hostname)?;
+    Ok(hostname)
+}
 
+fn generation_label() -> Result<()> {
+    let label = label()?;
+    println!("{}", label);
+    Ok(())
+}
+
+fn init(args: &Cli) -> Result<Sysdo> {	
+	let username = username(args.username.clone())?;
+    let hostname = hostname(args.hostname.clone())?;
+	let settings = Settings::new(&username, &hostname)?;
 	let app = Sysdo::new(settings)?;
+	Ok(app)
+}
+
+fn main() -> Result<()> {
+    env_logger::init();
+    let args = Cli::parse();
 	match args.command {
 		Commands::Setup => {
+			let app = init(&args)?;
 			app.setup()?;
 		}
 		Commands::Switch => {
-		  app.switch()?;
+			let app = init(&args)?;
+			app.switch()?;
 		}
 		Commands::Status => {
+			let app = init(&args)?;
 			app.status()?;
 		}		
 		Commands::GenerationLabel => {
-			app.generation_label()?;
+			generation_label()?;
 		}
 	}
 

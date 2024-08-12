@@ -18,7 +18,6 @@ mod switch;
 use switch::switch;
 mod status;
 use status::status;
-use nixgen::label;
 
 #[derive(Debug)]
 pub struct Sysdo {
@@ -42,12 +41,6 @@ impl Sysdo {
 
     pub fn status(&self) -> Result<()> {
         status()?;
-        Ok(())
-    }
-
-    pub fn generation_label(&self) -> Result<()> {
-        let label = label()?;
-        println!("{}", label);
         Ok(())
     }
 }
