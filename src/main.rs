@@ -10,9 +10,7 @@ use directories::BaseDirs;
 use std::process::Command;
 use jiff::{Zoned, Unit};
 use std::env;
-use nixgen::label;
 use clap::{Parser, Args, Subcommand, ValueEnum};
-
 mod settings;
 use settings::Settings;
 mod run;
@@ -30,14 +28,15 @@ enum Commands {
 
 	/// Get a quick looko at the status of the system
 	Status,
-
-	/// Generate a name for a NixOS Generation
-	GenerationLabel,
 }
 
 #[derive(Debug, Parser)]
 #[clap(version)]
 struct Cli {
+
+	#[clap(short, long)]
+	dry_run: bool,
+	
 	#[clap(long)]
 	hostname: Option<String>,
 
@@ -64,38 +63,24 @@ fn hostname(arg: Option<String>) -> Result<String> {
     Ok(hostname)
 }
 
-fn generation_label() -> Result<()> {
-    let label = label()?;
-    println!("{}", label);
-    Ok(())
-}
-
-fn init(args: &Cli) -> Result<Sysdo> {	
-	let username = username(args.username.clone())?;
-    let hostname = hostname(args.hostname.clone())?;
-	let settings = Settings::new(&username, &hostname)?;
-	let app = Sysdo::new(settings)?;
-	Ok(app)
-}
-
 fn main() -> Result<()> {
     env_logger::init();
     let args = Cli::parse();
+
+	let username = username(args.username.clone())?;
+    let hostname = hostname(args.hostname.clone())?;
+	let settings = Settings::new(args.dry_run, &username, &hostname)?;
+
+	let app = Sysdo::new(settings)?;    
 	match args.command {
 		Commands::Setup => {
-			let app = init(&args)?;
 			app.setup()?;
 		}
 		Commands::Switch => {
-			let app = init(&args)?;
 			app.switch()?;
 		}
 		Commands::Status => {
-			let app = init(&args)?;
 			app.status()?;
-		}		
-		Commands::GenerationLabel => {
-			generation_label()?;
 		}
 	}
 

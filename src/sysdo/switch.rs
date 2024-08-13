@@ -14,7 +14,7 @@ use std::os::unix::fs::PermissionsExt;
 use crate::run::run;
 use names::Generator;
 
-pub fn switch(hostname: &str) -> Result<()> {    
-    let _ = run("nixos-rebuild", Some(&["switch", "--flake", &format!(".#{}", hostname)]))?;
+pub fn switch(hostname: &str, label: &str) -> Result<()> {    
+    let _ = run("nixos-rebuild", Some(&["switch","--profile-name", label, "--flake", &format!(".#{}", hostname)]))?;
     Ok(())
 }

@@ -17,10 +17,11 @@ pub struct Settings {
     pub hostname: String,
     pub config_dir: PathBuf,
     pub home_dir: PathBuf,
+    pub dry_run: bool,
 }
 
 impl Settings {
-    pub fn new(username: &str, hostname: &str) -> Result<Self> {
+    pub fn new(dry_run: bool, username: &str, hostname: &str) -> Result<Self> {
         let Some(base_dirs) = BaseDirs::new() else {
     	    bail!("Unable to get base dirs");
     	};
@@ -28,7 +29,7 @@ impl Settings {
     	let config_dir = base_dirs.config_dir();
 
         Ok(Self {
-          username: username.to_string(), hostname: hostname.to_string(), config_dir: config_dir.to_path_buf(), home_dir: home_dir.to_path_buf(),  
+          dry_run, username: username.to_string(), hostname: hostname.to_string(), config_dir: config_dir.to_path_buf(), home_dir: home_dir.to_path_buf(),  
         })
     }
 }

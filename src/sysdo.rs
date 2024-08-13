@@ -10,7 +10,8 @@ use directories::BaseDirs;
 use std::process::Command;
 use jiff::{Zoned, Unit};
 use std::env;
-
+use nixgen::label;
+use nixgen::RepoRootConfig;
 use crate::settings::Settings;
 mod setup;
 use setup::setup;
@@ -35,7 +36,8 @@ impl Sysdo {
     }
 
     pub fn switch(&self) -> Result<()> {
-        switch(&self.settings.hostname)?;
+        let label = label(RepoRootConfig::Discover)?;
+        switch(&self.settings.hostname, &label)?;
         Ok(())
     }
 
