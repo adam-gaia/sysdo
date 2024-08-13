@@ -23,6 +23,9 @@ enum Commands {
 	/// Run initial setup on a new machine
 	Setup,
 
+	/// Run nixos-rebuild build
+	Build,
+
 	/// Run nixos-rebuild switch
 	Switch,
 
@@ -76,6 +79,9 @@ fn main() -> Result<()> {
 		Commands::Setup => {
 			app.setup()?;
 		}
+		Commands::Build => {
+			app.build()?;
+		},
 		Commands::Switch => {
 			app.switch()?;
 		}

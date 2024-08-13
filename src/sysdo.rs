@@ -15,10 +15,9 @@ use nixgen::RepoRootConfig;
 use crate::settings::Settings;
 mod setup;
 use setup::setup;
-mod switch;
-use switch::switch;
 mod status;
 use status::status;
+use crate::run::run;
 
 #[derive(Debug)]
 pub struct Sysdo {
@@ -35,9 +34,16 @@ impl Sysdo {
         Ok(())
     }
 
+    pub fn build(&self) -> Result<()> {
+        let hostname = &self.settings.hostname;
+        let _ = run("nixos-rebuild", Some(&["build", "--flake", &format!(".#{}", hostname)]))?;
+        Ok(())
+    }
+
     pub fn switch(&self) -> Result<()> {
+        let hostname = &self.settings.hostname;
         let label = label(RepoRootConfig::Discover)?;
-        switch(&self.settings.hostname, &label)?;
+        let _ = run("nixos-rebuild", Some(&["switch","--profile-name", &label, "--flake", &format!(".#{}", hostname)]))?;     
         Ok(())
     }
 
